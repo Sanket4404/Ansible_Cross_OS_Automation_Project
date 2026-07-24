@@ -1,0 +1,14 @@
+# Install Docker In Ubuntu
+
+---
+- name: Update apt cache
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+
+- name: Install Docker (Debian/Ubuntu)
+  apt:
+    name: docker.io
+    state: present
+  become: true

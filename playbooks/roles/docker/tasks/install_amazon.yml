@@ -1,0 +1,10 @@
+# Installs Docker in Amazon Linux
+
+
+---
+- name: Install Docker (Amazon Linux)
+  dnf:
+    name: docker
+    state: present
+  become: true
+

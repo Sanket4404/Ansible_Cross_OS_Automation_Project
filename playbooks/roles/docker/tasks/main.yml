@@ -1,0 +1,27 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/docker
+
+- name: Include OS Specific YML Files
+  include_tasks: "install_{{ ansible_distribution | lower }}.yml"
+
+- name: Add users to docker group
+  user:
+    name: "{{ item }}"
+    groups: docker
+    append: true
+  loop: "{{ docker_users }}"
+  when: docker_users | length > 0
+  become: true
+  notify: Restart Docker
+
+- name: Verify Docker is running
+  command: docker --version
+  changed_when: false
+  register: docker_version
+
+- name: Print Docker version
+  debug:
+    msg: "{{ docker_version.stdout }}"
+
+

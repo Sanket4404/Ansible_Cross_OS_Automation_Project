@@ -1,0 +1,57 @@
+# Installs Docker in the Red Hat
+
+---
+- name: Remove conflicting packages (podman, buildah)
+  dnf:
+    name:
+      - podman
+      - buildah
+    state: absent
+  become: true
+
+- name: Install dnf-plugins-core
+  dnf:
+    name: dnf-plugins-core
+    state: present
+  become: true
+
+- name: Add Docker CE repo
+  command: dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+  args:
+    creates: /etc/yum.repos.d/docker-ce.repo
+  become: true
+
+- name: Install Docker CE
+  dnf:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+  become: true
+
+- name: Configure Docker to use nftables
+  copy:
+    content: |
+      {
+        "iptables": false
+      }
+    dest: /etc/docker/daemon.json
+    mode: '0644'
+  become: true
+
+- name: Start and enable containerd
+  service:
+    name: containerd
+    state: started
+    enabled: true
+  become: true
+
+- name: Reset failed Docker service state
+  command: systemctl reset-failed docker.service
+  changed_when: false
+  failed_when: false
+  become: true
+
